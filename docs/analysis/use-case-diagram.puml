@@ -1,0 +1,21 @@
+@startuml
+title use-case 图
+left to right direction
+
+actor "玩家" as Player
+
+rectangle "简易大富翁系统" {
+    usecase "UC01 开始游戏" as StartGame
+    usecase "UC02 进行回合" as TakeTurn
+    usecase "UC03 查看游戏状态" as ViewStatus
+    usecase "UC04 重新开始游戏" as RestartGame
+    usecase "UC05 退出游戏" as ExitGame
+}
+
+Player -- StartGame
+Player -- TakeTurn
+Player -- ViewStatus
+Player -- RestartGame
+Player -- ExitGame
+
+@enduml

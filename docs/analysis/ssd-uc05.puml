@@ -1,0 +1,15 @@
+@startuml
+title SSD-05 退出游戏
+
+actor "玩家" as Player
+participant ":MonopolyGameSystem" as System
+
+Player -> System : exitGame()
+
+opt 游戏正在进行
+    System --> Player : 提示本局已中止，无赢家
+end
+
+System --> Player : 游戏程序退出
+
+@enduml

@@ -1,0 +1,70 @@
+@startuml
+title 设计顺序图 · 开始游戏（UC01 / CO01）
+hide footbox
+skinparam shadowing false
+
+actor "玩家" as User
+boundary "console : ConsoleUI" as UI
+control "controller : GameController" as Controller
+participant "game : MonopolyGame" as Game
+participant "board : Board" as Board
+participant "square : Square" as Square
+participant "die : Die" as Die
+participant "player : Player" as Player
+participant "piece : Piece" as Piece
+
+User -> UI : 选择「开始游戏」
+UI --> User : 提示输入玩家人数
+
+loop 首次输入或上一次人数无效
+    User -> UI : 提交人数
+    alt 输入不是 2 至 4 的整数
+        UI --> User : 提示输入 2～4 的整数
+    else 人数有效
+        UI -> Controller : startGame(playerCount)
+        Controller -> Controller : createGame(playerCount)
+        create Game
+        Controller -> Game : <<create>> MonopolyGame(playerCount)
+
+        alt 对局初始化成功
+            create Board
+            Game -> Board : <<create>> Board()
+            loop 按编号 1 至 35
+                create Square
+                Board -> Square : <<create>> Square(number, name)
+            end
+            Board --> Game : board
+            Game -> Board : getStartSquare()
+            Board --> Game : startSquare
+
+            create Die
+            Game -> Die : <<create>> Die()
+            loop 按编号 1 至 playerCount
+                create Player
+                Game -> Player : <<create>> Player(playerId, startSquare)
+                create Piece
+                Player -> Piece : <<create>> Piece(name, startSquare)
+                Player --> Game : player
+            end
+
+            note right of Game
+                gameStatus = IN_PROGRESS
+                currentPlayerNumber = 1
+            end note
+            Game --> Controller : game
+            note right of Controller
+                currentGame = game
+            end note
+            Controller -> Game : getView()
+            Game --> Controller : view : GameView
+            Controller --> UI : view
+            UI --> User : 显示初始棋盘、玩家信息和首位行动玩家
+        else 对局初始化失败
+            Game --> Controller : 初始化失败
+            Controller --> UI : 开局失败
+            UI --> User : 显示提示，返回主菜单
+        end
+    end
+end
+
+@enduml

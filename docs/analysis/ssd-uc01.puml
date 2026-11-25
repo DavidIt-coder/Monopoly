@@ -1,0 +1,17 @@
+@startuml
+title SSD-01 开始游戏
+
+actor "玩家" as Player
+participant ":MonopolyGameSystem" as System
+
+Player -> System : requestStartGame()
+System --> Player : 提示输入玩家人数
+Player -> System : startGame(playerCount)
+
+alt 玩家人数为2～4人
+    System --> Player : 初始棋盘、玩家信息、当前行动玩家
+else 玩家人数不合法
+    System --> Player : 提示人数无效，要求重新输入
+end
+
+@enduml

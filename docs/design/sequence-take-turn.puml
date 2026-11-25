@@ -1,0 +1,58 @@
+@startuml
+title 设计顺序图 · 进行回合（UC02 / CO02）
+hide footbox
+skinparam shadowing false
+
+actor "玩家" as User
+boundary "console : ConsoleUI" as UI
+control "controller : GameController" as Controller
+participant "game : MonopolyGame" as Game
+participant "current : Player" as Player
+participant "die : Die" as Die
+participant "board : Board" as Board
+participant "piece : Piece" as Piece
+
+User -> UI : 选择「进行回合」
+UI -> Controller : takeTurn()
+opt 已有对局
+    Controller -> Game : getStatus()
+    Game --> Controller : gameStatus
+end
+
+alt 未开局或本局已结束
+    Controller --> UI : 当前无法进行回合
+    UI --> User : 显示提示
+else 本局进行中
+    Controller -> Game : takeTurn()
+    Game -> Game : getCurrentPlayer()
+    Game -> Player : takeTurn(board, die)
+
+    Player -> Die : roll()
+    Player -> Die : getFaceValue()
+    Die --> Player : points
+
+    Player -> Piece : getSquare()
+    Piece --> Player : origin
+    Player -> Board : getDestination(origin, points)
+    Board --> Player : destination
+    Player -> Piece : moveTo(destination)
+    Player --> Game : (points, destination)
+
+    Game -> Board : isFinish(destination)
+    Board --> Game : reachedFinish
+
+    alt 棋子到达终点
+        Game -> Player : markWinner()
+        note right of Game
+            gameStatus = FINISHED
+        end note
+    else 棋子未到终点
+        Game -> Game : advanceCurrentPlayer()
+    end
+
+    Game --> Controller : result : TurnResult
+    Controller --> UI : result
+    UI --> User : 显示骰点、落点、下一位玩家或赢家
+end
+
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+title SSD-03 查看游戏状态
+
+actor "玩家" as Player
+participant ":MonopolyGameSystem" as System
+
+Player -> System : viewGameStatus()
+
+alt 游戏正在进行
+    System --> Player : 游戏状态、各棋子位置、当前行动玩家
+else 本局已结束
+    System --> Player : 游戏状态、各棋子最终位置、获胜玩家
+else 游戏尚未开始
+    System --> Player : 提示当前没有对局，请先开始游戏
+end
+
+@enduml

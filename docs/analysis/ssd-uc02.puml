@@ -1,0 +1,20 @@
+@startuml
+title SSD-02 进行回合
+
+actor "玩家" as Player
+participant ":MonopolyGameSystem" as System
+
+System --> Player : 显示当前行动玩家及棋子位置
+Player -> System : takeTurn()
+
+alt 游戏正在进行
+    alt 玩家未到达终点
+        System --> Player : 骰子点数、棋子新位置、下一位玩家
+    else 玩家到达或超过终点
+        System --> Player : 骰子点数、终点位置、获胜信息
+    end
+else 游戏未开始或已结束
+    System --> Player : 提示无法进行回合
+end
+
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+title SSD-04 重新开始游戏
+
+actor "玩家" as Player
+participant ":MonopolyGameSystem" as System
+
+Player -> System : restartGame()
+
+alt 本局已结束且新局初始化成功
+    System --> Player : 按原人数开局，显示初始棋盘、玩家信息和首位行动玩家
+else 本局仍在进行
+    System --> Player : 提示本局结束后才能重新开始
+else 游戏尚未开始
+    System --> Player : 提示请先开始游戏
+else 本局已结束但新局初始化失败
+    System --> Player : 提示重开失败，保留上一局结果
+end
+
+@enduml

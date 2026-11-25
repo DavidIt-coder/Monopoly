@@ -1,0 +1,122 @@
+@startuml
+title 简易大富翁 · 设计类图
+hide circle
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+class ConsoleUI <<boundary>> {
+    +run(): void
+}
+
+class GameController <<control>> {
+    +startGame(playerCount: Integer): GameView
+    +takeTurn(): TurnResult
+    +viewGameStatus(): GameView [0..1]
+    +restartGame(): GameView
+    +exitGame(): void
+    -createGame(playerCount: Integer): GameView
+}
+
+class MonopolyGame {
+    -gameStatus: GameStatus
+    -currentPlayerNumber: Integer
+    +MonopolyGame(playerCount: Integer)
+    +takeTurn(): TurnResult
+    +getView(): GameView
+    +getStatus(): GameStatus
+    +getPlayerCount(): Integer
+    +abort(): void
+    -getCurrentPlayer(): Player
+    -advanceCurrentPlayer(): void
+}
+
+class Player {
+    -playerId: Integer
+    -name: String
+    -isWinner: Boolean
+    +Player(playerId: Integer, startSquare: Square)
+    +takeTurn(board: Board, die: Die): Tuple<Integer, Square>
+    +markWinner(): void
+    +hasWon(): Boolean
+    +getName(): String
+    +getSquare(): Square
+}
+
+class Board {
+    +Board()
+    +getStartSquare(): Square
+    +getSquareNames(): List<String>
+    +getDestination(origin: Square, points: Integer): Square
+    +isFinish(square: Square): Boolean
+}
+
+class Square {
+    +number: Integer {readOnly}
+    +name: String {readOnly}
+    +Square(number: Integer, name: String)
+}
+
+class Die {
+    -faceValue: Integer [0..1]
+    +Die()
+    +roll(): void
+    +getFaceValue(): Integer
+}
+
+class Piece {
+    -name: String
+    +Piece(name: String, startSquare: Square)
+    +getSquare(): Square
+    +moveTo(destination: Square): void
+}
+
+enum GameStatus {
+    IN_PROGRESS
+    FINISHED
+    ABORTED
+}
+
+class GameView <<value object>> {
+    +status: GameStatus
+    +squareNames: List<String>
+    +playerPositions: List<Tuple<String, Integer>>
+    +currentPlayerName: String [0..1]
+    +winnerName: String [0..1]
+}
+
+class TurnResult <<value object>> {
+    +points: Integer
+    +destinationNumber: Integer
+    +destinationName: String
+    +nextPlayerName: String [0..1]
+    +winnerName: String [0..1]
+}
+
+ConsoleUI --> "1" GameController : controller
+GameController --> "0..1" MonopolyGame : currentGame
+MonopolyGame "1" *-- "1" Board : board
+MonopolyGame "1" *-- "1" Die : die
+MonopolyGame "1" *-- "2..4 {ordered}" Player : players
+Board "1" *-- "35 {ordered}" Square : squares
+Player "1" *-- "1" Piece : piece
+Piece "0..4" --> "1" Square : square
+Player ..> Board : 查询落点
+Player ..> Die : 掷骰
+MonopolyGame ..> GameStatus
+MonopolyGame ..> GameView
+MonopolyGame ..> TurnResult
+GameController ..> GameView
+GameController ..> TurnResult
+
+note right of GameController
+    首次开局和重开共用 createGame()。
+    新局创建成功后才替换当前对局。
+    退出时中止进行中的对局，由控制台结束程序。
+end note
+
+note right of Board
+    格子按编号 1 至 35 排列。
+    计算出的落点编号最大为 35。
+end note
+
+@enduml

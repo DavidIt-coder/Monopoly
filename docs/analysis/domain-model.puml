@@ -1,0 +1,44 @@
+@startuml
+title 领域模型
+
+hide circle
+hide methods
+
+class Die {
+    +faceValue
+}
+
+class MonopolyGame {
+    +gameStatus
+    +currentPlayerNumber
+}
+
+class Board
+
+class Player {
+    +name
+    +playerId
+    +isWinner
+}
+
+class Piece {
+    +name
+}
+
+class Square {
+    +name
+}
+
+MonopolyGame "1" -- "1" Die : played-with
+MonopolyGame "1" -- "1" Board : played-on
+Player "2..4" -- "1" MonopolyGame : plays
+Player "1" -- "1" Piece : owns
+Piece "0..4" -- "1" Square : is-on
+Board "1" -- "35" Square : contains
+
+note right of Board
+    35 个格子按行进顺序排列。
+    第 1 格是起点，第 35 格是终点。
+end note
+
+@enduml
